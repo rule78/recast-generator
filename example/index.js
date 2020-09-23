@@ -7,7 +7,7 @@ import { changeFile } from '../utils';
 const fs = require('fs');
 const path = require('path');
 
-const value = 999;
+const value = 888;
 const key = "c";
 const bhindKey = "b";
 
@@ -17,29 +17,29 @@ const ast = baby.parse(source, {
   sourceType: "module",
 }); 
 
+// 更新属性visitor
+const updateVisitor = {
+  Property(pPath) {
+    if (this.hasSameKey && t.isIdentifier(pPath.node.key, { name: key })) {
+      pPath.replaceWith(
+        t.objectProperty(t.identifier(key), t.numericLiteral(value))
+      )
+      pPath.stop();
+    }
+    if (!this.hasSameKey && t.isIdentifier(pPath.node.key, { name: bhindKey })) {
+      pPath.insertAfter(
+        t.objectProperty(t.identifier(key), t.numericLiteral(value))
+      )
+      pPath.stop();
+    }
+  }
+};
 traverse(ast, {
   ObjectExpression(path) {
     // 同属性覆盖处理
     if(path.parentPath.node.id.name === 'config'){
-      path.traverse({
-        Property(pPath) {
-          const hasSameKey = t.isIdentifier(pPath.node.key, { name: key });
-          if (hasSameKey) {
-            console.log('---');
-            pPath.replaceWith(
-              t.objectProperty(t.identifier(key), t.numericLiteral(value))
-            )
-            pPath.stop();
-          }
-          if (!hasSameKey && t.isIdentifier(pPath.node.key, { name: bhindKey })) {
-            console.log(pPath, '111');
-            pPath.insertAfter(
-              t.objectProperty(t.identifier(key), t.numericLiteral(value))
-            )
-            pPath.stop();
-          }
-        }
-      });
+      const hasSameKey = path.node.properties.find(i => i.key.name === key)
+      path.traverse(updateVisitor, { hasSameKey });
     }
   }
 });
