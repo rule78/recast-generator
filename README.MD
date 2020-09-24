@@ -1,7 +1,7 @@
 <h1 align="center">babel-insert</h1>
 
 ### 实现功能
-- 整合到Cli里，用于智能修改配置文件
+- 整合到Cli里，用于智能修改配置文件,生成接口相关文件
 - 在cli pages指令创建页面代码时，通过该插件智能修改router.js、memu.js等配置文件，提高工作效率
 
 ### Use bash
