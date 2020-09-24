@@ -2,15 +2,20 @@
 
 ### 实现功能
 - 整合到Cli里，用于智能修改配置文件
-- 在cli pages指令创建页面代码时，配合该插件修改router.js、memu.js等配置文件，提高工作效率
+- 在cli pages指令创建页面代码时，通过该插件智能修改router.js、memu.js等配置文件，提高工作效率
 
 ### Use bash
 ```
 $ yarn
 
-$ cd example
+$ cd src
 
-$ babel-node index
+$ babel-node request
 
 // 成功写入!
+// export async function fetchList(data) {
+//  return request.get("/api/", {
+//    data
+//  });
+// }
 ```
