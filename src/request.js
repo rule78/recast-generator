@@ -13,6 +13,14 @@ const ast = baby.parse(source, {
   sourceType: "module",
 });
 
+// 生成导入节点
+const getImportDeclaration = () => {
+    return t.importDeclaration(
+      [t.ImportDefaultSpecifier(t.identifier('request'))],
+      t.stringLiteral('@/utils/request')
+    );
+  }
+
 // 生成显式函数request声明
 const getFunctionDeclaration = (config) => {
   const { method = "get", name: exportName, api = '/api/' } = config;
@@ -54,6 +62,8 @@ const funcList = [
 // test
 traverse(ast, {
   Program(path) {
+    // 插入导出代码
+    path.pushContainer("body", getImportDeclaration());
     funcList.forEach(i => {
       path.pushContainer("body",
         t.exportNamedDeclaration(
