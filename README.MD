@@ -12,10 +12,15 @@ $ cd src
 
 $ babel-node request
 
-// 成功写入!
+// 成功写入services文件!
 // export async function fetchList(data) {
 //  return request.get("/api/", {
 //    data
 //  });
 // }
+// export async function addList(data) {
+//  return request.post("/api/", {
+//    data
+//  });
+//}
 ```
