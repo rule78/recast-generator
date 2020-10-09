@@ -17,6 +17,45 @@ const changeFile = (dir, code, cd) => {
   });
 }
 
+const upperFirstKey = (name) => {
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+// 映射method对应action
+const methodMap = {
+  'get': 'get',
+  'post': 'add',
+  'delete': 'delete',
+  'put': 'edit'
+}
+const formatPaths = (paths) => {
+  const pathList = [];
+  for(let key in paths) {
+    // 可做非约定api约定容错
+    const pathSplit = key.split('/');
+    const control = paths[key];
+    for(let methodKey in control) {
+      const target = {};
+      target.api = key;
+      target.method = methodKey;
+      target.summary = control[methodKey].summary;
+      target.name = `${methodMap[methodKey]}${upperFirstKey(pathSplit[2])}`;
+      const parameters = control[methodKey].parameters;
+      for(let pKey in parameters) {
+        const type = parameters[pKey].in
+        if (type === 'body') {
+          target.hasBodyParam = true;
+        }
+        if (type === 'query') {
+          target.hasQueryParam = true;
+        }
+      }
+      pathList.push(target);
+    }
+  }
+  return pathList;
+}
+
 export {
   changeFile,
+  formatPaths,
 }
