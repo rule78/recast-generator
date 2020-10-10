@@ -11,6 +11,7 @@ const dir = path.join("./memu.js");
 const source = fs.readFileSync(dir, "utf8");
 const ast = baby.parse(source, {
   sourceType: "module",
+  plugins: ["flowComments"]
 });
 
 // 生成导入节点
@@ -134,11 +135,6 @@ traverse(ast, {
       path.unshiftContainer("body", getImportDeclaration());
     }
     formatPaths(paths).forEach(i => {
-      // if (i.summary) {
-      //   path.pushContainer('body',
-      //   t.expressionStatement(
-      //     t.stringLiteral(`// ${i.summary}`))); 
-      // }
       path.pushContainer("body",
         t.exportNamedDeclaration(
           getFunctionDeclaration(i)
@@ -148,5 +144,5 @@ traverse(ast, {
   },
 });
 
-const { code } = generate(ast, { jsonCompatibleStrings: true});
+const { code } = generate(ast);
 changeFile(dir, code);

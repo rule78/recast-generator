@@ -25,6 +25,8 @@
     "@babel/parser": "^7.11.4"
   },
   "dependencies": {
-    "babel-preset-es2015": "^6.24.1"
+    "babel-preset-es2015": "^6.24.1",
+    "qoa": "^0.2.0",
+    "request": "^2.88.2"
   }
 }
