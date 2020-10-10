@@ -1,4 +1,7 @@
-import { filterPaths } from '../utils/format'
+import {
+  filterPaths,
+  getFileNameByPaths,
+} from '../utils/format'
 
 const request = require('request')
 const qoa = require('qoa');
@@ -25,7 +28,7 @@ const cb = async (err, response) => {
     };
     const cRes = await qoa.prompt([selectControl]);
     const p = filterPaths(cRes.control, paths);
-    console.log(p);
+    console.log(getFileNameByPaths(p));
   }
 }
 request(api, cb);

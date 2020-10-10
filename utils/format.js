@@ -30,3 +30,21 @@ export const filterPaths = (controlName, paths) => {
   return target;
 }
 
+// 根据psths关键字权重获取合适的文件名
+export const getFileNameByPaths = (paths) => {
+  const keys = Object.keys(paths).map(i=>{
+    const pathSplit = i.split('/');
+    return pathSplit[2];
+  })
+  let maxEle;
+  let maxNum=1;
+  keys.reduce(function (p,k) {
+    p[k] ? p[k]++ : p[k]=1;
+    if(p[k] > maxNum){
+        maxEle = k;
+        maxNum++;
+    }
+    return p;
+  },{});
+  return maxEle;
+}
