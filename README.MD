@@ -12,15 +12,22 @@ $ cd src
 
 $ babel-node request
 
-// 成功写入services文件!
-// export async function fetchList(data) {
-//  return request.get("/api/", {
-//    data
-//  });
-// }
-// export async function addList(data) {
-//  return request.post("/api/", {
-//    data
-//  });
-//}
+```
+
+### Logs
+```
+//成功写入！
+import request from "@/utils/request";
+export async function getAdvanceSellProduct(data) {
+  return request.get("/mgmt/advanceSellProduct", {
+    data
+  });
+}
+export async function addAdvanceSellProduct(data, params) {
+  return request.post("/mgmt/advanceSellProduct", {
+    data,
+    params
+  });
+}
+
 ```
