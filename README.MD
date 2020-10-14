@@ -8,9 +8,9 @@
 ```
 $ yarn
 
-$ cd src
+$ cd example
 
-$ babel-node request
+$ babel-node generator
 
 ```
 
