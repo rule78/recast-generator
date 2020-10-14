@@ -35,11 +35,8 @@ const formatPaths = (paths) => {
     const control = paths[key];
     for(let methodKey in control) {
       const target = {};
-      target.api = key;
-      target.method = methodKey;
-      target.summary = control[methodKey].summary;
-      target.name = `${methodMap[methodKey]}${upperFirstKey(pathSplit[2])}`;
       const parameters = control[methodKey].parameters;
+      const pathParams = [];
       for(let pKey in parameters) {
         const type = parameters[pKey].in
         if (type === 'body') {
@@ -48,7 +45,15 @@ const formatPaths = (paths) => {
         if (type === 'query') {
           target.hasQueryParam = true;
         }
+        if (type === 'path') {
+          pathParams.push(parameters[pKey]);
+        }
       }
+      target.api = key;
+      target.method = methodKey;
+      target.summary = control[methodKey].summary;
+      target.name = `${methodMap[methodKey]}${upperFirstKey(pathSplit[2])}`;
+      target.pathParams = pathParams;
       pathList.push(target);
     }
   }

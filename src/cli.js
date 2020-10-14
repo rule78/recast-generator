@@ -2,6 +2,7 @@ import {
   filterPaths,
   getFileNameByPaths,
 } from '../utils/format'
+import generator from './generator';
 
 const request = require('request')
 const qoa = require('qoa');
@@ -28,7 +29,7 @@ const cb = async (err, response) => {
     };
     const cRes = await qoa.prompt([selectControl]);
     const p = filterPaths(cRes.control, paths);
-    console.log(getFileNameByPaths(p));
+    generator(p);
   }
 }
 request(api, cb);

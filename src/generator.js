@@ -33,6 +33,20 @@ const getObjectExpression = (propList) => {
   })
   return target;
 }
+
+// 获取字符串模板节点
+const getTemplateLiteral = (api, pathParams) => {
+  const qList = api.split(/{|}/);
+  const expressions = pathParams.map((i)=>{
+    return t.identifier(i.name);
+  })
+  const quasis = qList.filter(i=>!pathParams.map(i=>i.name).includes(i))
+  .map((i)=>{
+    return t.templateElement({ raw: i, cooked: i });
+  })
+  return t.templateLiteral(quasis, expressions);
+}
+
 // 生成显式函数request声明
 const getFunctionDeclaration = (config) => {
   const { 
@@ -41,10 +55,20 @@ const getFunctionDeclaration = (config) => {
     api = '/api/',
     hasQueryParam, // query请求参数
     hasBodyParam, // body请求参数
+    pathParams, // path请求参数
   } = config;
   const funcParams = [] // 声明函数传参
   const methodProps = [] // method参数数组
+  let apiNode = null;
   // 参数顺序 path、query、body
+  if (pathParams.length > 0){
+    pathParams.map(i=> {
+      funcParams.push(t.identifier(i.name))
+    })
+    apiNode = getTemplateLiteral(api, pathParams);
+  } else {
+    apiNode = t.stringLiteral(api);
+  }
   if (hasQueryParam) {
     funcParams.push(t.identifier('data'))
     methodProps.push('data')
@@ -52,6 +76,14 @@ const getFunctionDeclaration = (config) => {
   if (hasBodyParam) {
     funcParams.push(t.identifier('params'))
     methodProps.push('params')
+  }
+  let funcParamsNode = [apiNode];
+  if (hasQueryParam || hasBodyParam) {
+    funcParamsNode.push(
+      t.objectExpression( // method参数数组
+        getObjectExpression(methodProps)
+      )
+    )
   }
   return t.functionDeclaration(
     t.identifier(exportName),
@@ -63,12 +95,7 @@ const getFunctionDeclaration = (config) => {
             t.identifier('request'),
             t.identifier(method),
           ),
-          [
-            t.stringLiteral(api), 
-            t.objectExpression( // method参数数组
-              getObjectExpression(methodProps)
-            )
-          ]
+          funcParamsNode,
         )
       )]
     ),
@@ -77,72 +104,26 @@ const getFunctionDeclaration = (config) => {
   )
 }
 
-const paths = {
-  '/mgmt/advanceSellProduct': {
-    get: {
-      parameters: [{
-        description: "status",
-        format: "int32",
-        in: "query",
-        name: "status",
-        required: false,
-        type: "integer",
-      }, {
-        description: "skuCode",
-        format: "int64",
-        in: "query",
-        name: "skuCode",
-        required: false,
-        type: "integer",
-      }],
-      summary: "预售商品查找接口",
-      responses: {
-        200: {
-          description: "OK"
-        }
+const generator = (paths) => {
+  traverse(ast, {
+    Program(path) {
+      // 是否有request引入
+      const imporNode = path.node.body.find(i => i.type === 'ImportDeclaration')
+      if (!imporNode) {
+        path.unshiftContainer("body", getImportDeclaration());
       }
+      formatPaths(paths).forEach(i => {
+        path.pushContainer("body",
+          t.exportNamedDeclaration(
+            getFunctionDeclaration(i)
+          )
+        );
+      })
     },
-    post: {
-      parameters: [{
-        description: "advanceSellProductVo",
-        in: "body",
-        name: "advanceSellProductVo",
-        required: true,
-      }, {
-        default: true,
-        description: "validate",
-        in: "query",
-        name: "validate",
-        required: false,
-        type: "boolean",
-      }],
-      summary: "预售商品创建接口",
-      responses: {
-        200: {
-          description: "OK"
-        }
-      }
-    }
-  },
+  });
+
+  const { code } = generate(ast);
+  changeFile(dir, code);
 }
 
-// test
-traverse(ast, {
-  Program(path) {
-    // 是否有request引入
-    const imporNode = path.node.body.find(i=> i.type === 'ImportDeclaration')
-    if (!imporNode) {
-      path.unshiftContainer("body", getImportDeclaration());
-    }
-    formatPaths(paths).forEach(i => {
-      path.pushContainer("body",
-        t.exportNamedDeclaration(
-          getFunctionDeclaration(i)
-        )
-      );
-    })
-  },
-});
-
-const { code } = generate(ast);
-changeFile(dir, code);
+export default generator;
