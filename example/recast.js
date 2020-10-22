@@ -11,31 +11,31 @@ const fs = require('fs');
 const path = require('path');
 
 const paths = {
-    '/mgmt/advanceSellProduct': {
-      get: {
-        parameters: [{
-          description: "status",
-          format: "int32",
-          in: "query",
-          name: "status",
-          required: false,
-          type: "integer",
-        }, {
-          description: "skuCode",
-          format: "int64",
-          in: "query",
-          name: "skuCode",
-          required: false,
-          type: "integer",
-        }],
-        summary: "预售商品查找接口",
-        responses: {
-          200: {
-            description: "OK"
+    '/mgmt/advanceSellProduct/stop/{id}': {
+        put: {
+          parameters: [{
+            description: "id",
+            format: "int32",
+            in: "path",
+            name: "id",
+            required: false,
+            type: "integer",
+          }, {
+            description: "skuCode",
+            format: "int64",
+            in: "body",
+            name: "skuCode",
+            required: false,
+            type: "integer",
+          }],
+          summary: "添加预售商品接口",
+          responses: {
+            200: {
+              description: "OK"
+            }
           }
-        }
+        },
       },
-    },
   }
 
 const dir = path.join("./memu.js");
@@ -71,9 +71,8 @@ const getObjectExpression = (propList) => {
     const expressions = pathParams.map((i)=>{
       return t.identifier(i.name);
     })
-    const quasis = qList.filter(i=>!pathParams.map(i=>i.name).includes(i))
-    .map((i)=>{
-      return t.templateElement({ raw: i, cooked: i });
+    const quasis = qList.filter(i=>!pathParams.map(i=>i.name).includes(i)).map((i)=>{
+        return t.templateElement({ raw: i, cooked: i }, true);
     })
     return t.templateLiteral(quasis, expressions);
   }
@@ -130,8 +129,8 @@ const getFunctionDeclaration = (config) => {
           )
         )]
       ),
-      false,
       true,
+      false,
     )
   }
 
@@ -141,12 +140,13 @@ v(ast, {
         if (!imporNode) { 
           path.get("body").unshift(getImportDeclaration());
         }
-        path.get("body").push(t.commentLine(i.summary))
-        formatPaths(paths).forEach(i => {
+        formatPaths(paths).forEach((i, index) => {
             path.get("body").push(
               t.exportNamedDeclaration(
                 getFunctionDeclaration(i)
               ))
+            const funcNodeList = path.node.body.filter(i => i.declaration)
+            funcNodeList[index].comments = [t.commentLine(i.summary)]
           })
         this.traverse(path);
     }
