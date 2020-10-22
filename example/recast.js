@@ -141,7 +141,7 @@ v(ast, {
         if (!imporNode) { 
           path.get("body").unshift(getImportDeclaration());
         }
-        path.get("body").push(t.commentLine("1212"))
+        path.get("body").push(t.commentLine(i.summary))
         formatPaths(paths).forEach(i => {
             path.get("body").push(
               t.exportNamedDeclaration(
