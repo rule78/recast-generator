@@ -119,14 +119,22 @@ const getFunctionDeclaration = (config) => {
       t.identifier(exportName),
       funcParams, // func参数
       t.blockStatement(
-        [t.returnStatement(
-          t.callExpression( // 方法调用
-            t.memberExpression(
-              t.identifier('request'),
-              t.identifier(method),
-            ),
-            funcParamsNode,
-          )
+        [
+        t.variableDeclaration("const", [
+            t.variableDeclarator(
+                t.identifier('data'),
+                t.yieldExpression(   
+                    t.callExpression( // 方法调用
+                    t.memberExpression(
+                      t.identifier('request'),
+                      t.identifier(method),
+                    ),
+                    funcParamsNode,
+                  ))
+            )
+        ]),
+        t.returnStatement(
+          t.identifier('data')
         )]
       ),
       true,
