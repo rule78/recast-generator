@@ -14,7 +14,7 @@ const ast = baby.parse(source, {
   plugins: ["flowComments"]
 });
 
-// 生成导入节点
+// Important构建器：生成request导入节点
 const getImportDeclaration = () => {
   return t.importDeclaration(
     [t.ImportDefaultSpecifier(t.identifier('request'))],
@@ -22,6 +22,7 @@ const getImportDeclaration = () => {
   );
 }
 
+// Object构建器：生成axios请求参数节点
 const getObjectExpression = (propList) => {
   const target = propList.map(i=>{
     return t.objectProperty(
@@ -34,7 +35,7 @@ const getObjectExpression = (propList) => {
   return target;
 }
 
-// 获取字符串模板节点
+// stringTpl构建器：生成字符串模板节点
 const getTemplateLiteral = (api, pathParams) => {
   const qList = api.split(/{|}/);
   const expressions = pathParams.map((i)=>{
@@ -47,7 +48,7 @@ const getTemplateLiteral = (api, pathParams) => {
   return t.templateLiteral(quasis, expressions);
 }
 
-// 生成显式函数request声明
+// func构建器：生成request函数声明
 const getFunctionDeclaration = (config) => {
   const { 
     method = "get",
@@ -113,6 +114,9 @@ const generator = (paths) => {
         path.unshiftContainer("body", getImportDeclaration());
       }
       formatPaths(paths).forEach(i => {
+        // path.pushContainer("body",
+        //   t.expressionStatement(t.comment("LineComment", `@@${i.summary}`))
+        // );
         path.pushContainer("body",
           t.exportNamedDeclaration(
             getFunctionDeclaration(i)
@@ -122,7 +126,11 @@ const generator = (paths) => {
     },
   });
 
-  const { code } = generate(ast);
+  const { code } = generate(ast, {
+    jsonCompatibleStrings: true,
+    comments: true,
+    auxiliaryCommentBefore: '生成文件',
+  });
   changeFile(dir, code);
 }
 

@@ -13,6 +13,8 @@ const changeFile = (dir, code, cd) => {
           console.log(`成功写入!${dir}`);
         }
       });
+    } else {
+      console.log('该文件不存在')
     }
   });
 }
