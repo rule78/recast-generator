@@ -1,21 +1,3 @@
-<h1 align="center">recast-generator</h1>
-
-### 实现功能
-- 根据yapi、swagger接口生成前端services、interface声明代码
-
-### Use bash
-```
-$ yarn
-
-$ cd example
-
-$ babel-node test
-
-```
-
-### Logs
-```
-//成功写入！
 import request from "@/utils/request";
 
 //更改预售商品状态接口
@@ -35,5 +17,3 @@ export function* addStandProduct(params) {
 
   return data;
 }
-
-```

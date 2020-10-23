@@ -1,6 +1,5 @@
 import {
   filterPaths,
-  getFileNameByPaths,
 } from '../utils/format'
 import generator from './generator';
 

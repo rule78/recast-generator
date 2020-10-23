@@ -10,7 +10,7 @@ export function unique(arr, key) {
 }
 
 /**
- * 筛选属于该control的api
+ * 筛选属于该controller的api
  * @param {String} controlName 名称
  * @param {Object} paths swagger docs paths
  * @return {Object} 返回新对象
@@ -30,7 +30,7 @@ export const filterPaths = (controlName, paths) => {
   return target;
 }
 
-// 根据psths关键字权重获取合适的文件名
+// 根据paths关键字权重获取合适的文件名
 export const getFileNameByPaths = (paths) => {
   const keys = Object.keys(paths).map(i=>{
     const pathSplit = i.split('/');
