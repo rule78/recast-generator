@@ -79,7 +79,7 @@ const getFunctionDeclaration = (config) => {
       [
         t.variableDeclaration("const", [
           t.variableDeclarator(
-            t.identifier('data'),
+            t.identifier('res'),
             t.yieldExpression(
               t.callExpression( // 方法调用
                 t.memberExpression(
@@ -92,7 +92,7 @@ const getFunctionDeclaration = (config) => {
           )
         ]),
         t.returnStatement(
-          t.identifier('data')
+          t.identifier('res')
         )]
     ),
     true,
