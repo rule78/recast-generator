@@ -1,3 +1,8 @@
+// 首字母大写
+const upperFirstKey = (name) => {
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
 /**
  * 根据子项key值数组去重
  * @param {Array} arr 传入数组
@@ -47,4 +52,35 @@ export const getFileNameByPaths = (paths) => {
     return p;
   },{});
   return maxEle;
+}
+
+// 获取额外值声明
+export const getExtraDefinitions = (def) => {
+  const target = [];
+  // object name
+  Object.keys(def).forEach(key => {
+    const props = def[key].properties;
+    // prop name
+    Object.keys(props).forEach(i => {
+      if (props[i].enum) {
+        target.push({
+          name: `${key}${upperFirstKey(i)}`,
+          type: 'enum',
+          values: props[i].enum,
+        })
+      }
+    })
+    target.push({
+      ...def[key],
+      name: key, // 简单定义接口名称
+    })
+  })
+  return target;
+}
+
+// 格式化ref接口名称
+export const formatRefName = (ref) => {
+  //ref '#/definitions/Category'
+  const nameSplit = ref.split('/');
+  return nameSplit[2]
 }

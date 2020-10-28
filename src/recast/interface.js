@@ -4,41 +4,47 @@ import {
   namedTypes as n,
   builders as t,
 } from "ast-types";
+import { formatRefName } from '../utils/format';
 
-const Order = {
-    properties: {
-        id: { type: "integer", format: "int64" },
-        complete: { type: "boolean" },
-        status: {
-            description: "Order Status",
-            enum: ["placed", "approved", "delivered"],
-            type: "string",
-        }
-    }
+const getTsEnumDeclaration = (i) => {
+  return t.tsEnumDeclaration(
+    t.identifier(i.name),
+    i.values.map((m) => t.tsEnumMember(
+      t.identifier(m),
+    )),
+  )
 }
 
-const formatDef = (def) => {
-    const definitions = [];
-    Object.keys(def.properties).forEach(i => {
-        if (i.enum) {
-            definitions.push({
-                name: `Order${i}`,
-                type: 'enum'
-            })
-        }
-    })
+const getInterfaceDeclaration = (i) => {
+  return t.tsInterfaceDeclaration(
+    t.identifier(i.name),
+    null, // typeParameters
+    null, // extends
+    t.tsInterfaceBody(
+
+    ),
+    true, // declare
+  )
 }
 
 const generator = (source, def) => {
-    const ast = parse(source, {
-      sourceType: "module",
-      plugins: ["flowComments"]
-    });
-    v(ast, {
-        visitProgram(path) {
-            path.get("body").push(
-
-            )
+  const ast = parse(source, {
+    sourceType: "module",
+    plugins: ["flowComments", "typescript"]
+  });
+  v(ast, {
+    visitProgram(path) {
+      def.map(i => {
+        if (i.type === 'object') {
+          path.get("body").push(getInterfaceDeclaration(i));
+        } else {
+          path.get("body").push(getTsEnumDeclaration(i));
         }
-    })
+      })
+      this.traverse(path);
+    }
+  })
+  return prettyPrint(ast, { tabWidth: 2 }).code;
 }
+
+export default generator;
