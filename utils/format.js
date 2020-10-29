@@ -62,18 +62,20 @@ export const getExtraDefinitions = (def) => {
     const props = def[key].properties;
     // prop name
     Object.keys(props).forEach(i => {
+      if (props[i].type === 'integer') {
+        props[i].type = 'number';
+      }
       if (props[i].enum) {
         target.push({
           name: `${key}${upperFirstKey(i)}`,
           type: 'enum',
           values: props[i].enum,
+          enumType: props[i].type,
         })
       }
     })
-    target.push({
-      ...def[key],
-      name: key, // 简单定义接口名称
-    })
+    // 简单定义基础类型名称
+    target.push(Object.assign(def[key], {name : key}));
   })
   return target;
 }
@@ -82,5 +84,5 @@ export const getExtraDefinitions = (def) => {
 export const formatRefName = (ref) => {
   //ref '#/definitions/Category'
   const nameSplit = ref.split('/');
-  return nameSplit[2]
+  return nameSplit[2];
 }

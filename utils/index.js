@@ -65,4 +65,5 @@ const formatPaths = (paths) => {
 export {
   changeFile,
   formatPaths,
+  upperFirstKey,
 }
