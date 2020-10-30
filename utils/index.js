@@ -29,33 +29,30 @@ const methodMap = {
   'delete': 'delete',
   'put': 'edit'
 }
+// 自定义api导出方法名称
+const getExportFuncName = (api) => {
+  const pathReg = new RegExp('^\{+.*\}$');
+  const pathSplit = api.split('/')
+    .filter(i=>!!i && !pathReg.test(i))
+    .map(i=>upperFirstKey(i));
+  return pathSplit.join('');
+}
+
 const formatPaths = (paths) => {
   const pathList = [];
   for(let key in paths) {
-    // 可做非约定api约定容错
-    const pathSplit = key.split('/');
     const control = paths[key];
     for(let methodKey in control) {
-      const target = {};
       const parameters = control[methodKey].parameters;
-      const pathParams = [];
-      for(let pKey in parameters) {
-        const type = parameters[pKey].in
-        if (type === 'body') {
-          target.hasBodyParam = true;
-        }
-        if (type === 'query') {
-          target.hasQueryParam = true;
-        }
-        if (type === 'path') {
-          pathParams.push(parameters[pKey]);
-        }
-      }
-      target.api = key;
-      target.method = methodKey;
-      target.summary = control[methodKey].summary;
-      target.name = `${methodMap[methodKey]}${upperFirstKey(pathSplit[2])}`;
-      target.pathParams = pathParams;
+      const target = {
+        api: key,
+        method: methodKey,
+        summary: control[methodKey].summary,
+        name: `${methodMap[methodKey]}${getExportFuncName(key)}`,
+        pathParams: parameters.filter((item) => item.in === 'path'),
+        bodyParams: parameters.filter((item) => item.in === 'body'),
+        queryParams: parameters.filter((item) => item.in === 'query'),
+      };
       pathList.push(target);
     }
   }

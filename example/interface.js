@@ -14,7 +14,7 @@ request(api, (err, res) => {
   if (!err && res.statusCode == 200) { 
     const { definitions } = JSON.parse(res.body);
     changeFile(dir, generator(source, getExtraDefinitions(definitions)),
-    ()=>{
+    () => {
       console.log(`成功写入文件${dir}`)
     });
   }

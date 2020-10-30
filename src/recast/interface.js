@@ -8,10 +8,15 @@ import { formatRefName } from '../../utils/format';
 import { upperFirstKey } from '../../utils';
 
 const getTsEnumDeclaration = (i) => {
+  // numericLiteral
+  const getInitializer = (value) => {
+    return i.enumType === 'string' ? t.stringLiteral(value): null;
+  }
   return t.tsEnumDeclaration(
     t.identifier(i.name),
     i.values.map((m) => t.tsEnumMember(
       t.identifier(m),
+      getInitializer(m),
     )),
   )
 }

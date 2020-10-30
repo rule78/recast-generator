@@ -40,8 +40,8 @@ const getFunctionDeclaration = (config) => {
     method = "get",
     name: exportName,
     api = '/api/',
-    hasQueryParam, // query请求参数
-    hasBodyParam, // body请求参数
+    queryParams, // query请求参数
+    bodyParams, // body请求参数
     pathParams, // path请求参数
   } = config;
   const funcParams = [] // 声明函数传参
@@ -56,16 +56,16 @@ const getFunctionDeclaration = (config) => {
   } else {
     apiNode = t.stringLiteral(api);
   }
-  if (hasQueryParam) {
+  if (queryParams.length > 0) {
     funcParams.push(t.identifier('data'))
     methodProps.push('data')
   }
-  if (hasBodyParam) {
+  if (bodyParams.length > 0) {
     funcParams.push(t.identifier('params'))
     methodProps.push('params')
   }
   let funcParamsNode = [apiNode];
-  if (hasQueryParam || hasBodyParam) {
+  if (queryParams.length > 0 || bodyParams.length > 0) {
     funcParamsNode.push(
       t.objectExpression( // method参数数组
         getObjectExpression(methodProps)

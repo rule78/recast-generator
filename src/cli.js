@@ -20,14 +20,14 @@ const cb = async (err, response) => {
   if (!err && response.statusCode == 200) { 
     console.log('success request!')
     const { tags, paths } = JSON.parse(response.body);
-    const kRes = await qoa.prompt([keyword]);
-    const selectList = tags.filter(i=>i.name.indexOf(kRes.key) !== -1);
+    //const kRes = await qoa.prompt([keyword]);
+    //const selectList = tags.filter(i=>i.name.indexOf(kRes.key) !== -1);
     const selectControl = {
       type: 'interactive',
       query: 'Select your api controller:',
       handle: 'control',
       symbol: '>',
-      menu: selectList.map(i=>i.name),
+      menu: tags.map(i=>i.name),
     };
     const cRes = await qoa.prompt([selectControl]);
     const p = filterPaths(cRes.control, paths);
@@ -37,7 +37,6 @@ const cb = async (err, response) => {
     
     changeFile(dir, generator(source, p), ()=>{
         console.log(`成功写入文件${dir}`)
-        console.log(source);
     });
   }
 }
