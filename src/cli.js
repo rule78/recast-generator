@@ -21,18 +21,18 @@ const cb = async (err, response) => {
     console.log('success request!')
     const { tags, paths } = JSON.parse(response.body);
     //const kRes = await qoa.prompt([keyword]);
-    //const selectList = tags.filter(i=>i.name.indexOf(kRes.key) !== -1);
+    const selectList = tags.filter(i=>i.name !== 'pet');
     const selectControl = {
       type: 'interactive',
       query: 'Select your api controller:',
       handle: 'control',
       symbol: '>',
-      menu: tags.map(i=>i.name),
+      menu: selectList.map(i=>i.name),
     };
     const cRes = await qoa.prompt([selectControl]);
     const p = filterPaths(cRes.control, paths);
 
-    const dir = path.join("../example/service.js");
+    const dir = path.join("../example/service.ts");
     const source = fs.readFileSync(dir, "utf8");
     
     changeFile(dir, generator(source, p), ()=>{

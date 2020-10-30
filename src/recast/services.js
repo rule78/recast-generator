@@ -34,6 +34,17 @@ const getTemplateLiteral = (api, pathParams) => {
   return t.templateLiteral(quasis, expressions);
 }
 
+const getTypeAnnotation = (i) => {
+  let arg = t.identifier(i.name);
+  // 缺少ref类型转化
+  arg.typeAnnotation = t.typeAnnotation(
+    t.genericTypeAnnotation(
+      t.identifier(i.type === 'integer' ? 'number': i.type),
+      null // params
+    ),
+  );
+  return arg;
+}
 // func构建器：生成request函数声明
 const getFunctionDeclaration = (config) => {
   const {
@@ -50,19 +61,21 @@ const getFunctionDeclaration = (config) => {
   // 参数顺序 path、query、body
   if (pathParams.length > 0) {
     pathParams.map(i => {
-      funcParams.push(t.identifier(i.name))
+      funcParams.push(getTypeAnnotation(i));
     })
     apiNode = getTemplateLiteral(api, pathParams);
   } else {
     apiNode = t.stringLiteral(api);
   }
+  // url参数
   if (queryParams.length > 0) {
-    funcParams.push(t.identifier('data'))
-    methodProps.push('data')
-  }
-  if (bodyParams.length > 0) {
     funcParams.push(t.identifier('params'))
     methodProps.push('params')
+  }
+  // 请求主体被发送的数据
+  if (bodyParams.length > 0) {
+    funcParams.push(t.identifier('data'))
+    methodProps.push('data')
   }
   let funcParamsNode = [apiNode];
   if (queryParams.length > 0 || bodyParams.length > 0) {
@@ -110,7 +123,7 @@ const getFunctionDeclaration = (config) => {
 const generator = (source, paths) => {
   const ast = parse(source, {
     sourceType: "module",
-    plugins: ["flowComments"]
+    plugins: ["flowComments", "typescript"]
   });
   v(ast, {
     visitProgram(path) {
@@ -122,7 +135,7 @@ const generator = (source, paths) => {
       formatPaths(paths).forEach((i, index) => {
         const sameExportNode = path.node.body.find(e => {
           if (e.type === 'ExportNamedDeclaration' && e.declaration.id) {
-            return e.declaration.id.name === i.name
+            return e.declaration.id.name === i.name;
           }
         })
         if (!sameExportNode) { // 不存在该方法声明时
@@ -131,8 +144,8 @@ const generator = (source, paths) => {
               getFunctionDeclaration(i)
             ))
           // 添加注释
-          const funcNodeList = path.node.body.filter(i => i.declaration)
-          funcNodeList[index].comments = [t.commentLine(i.summary)]
+          const funcNodeList = path.node.body.filter(i => i.declaration);
+          funcNodeList[index].comments = [t.commentLine(i.summary)];
         }
         return;
       })
