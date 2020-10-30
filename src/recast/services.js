@@ -35,6 +35,7 @@ const getTemplateLiteral = (api, pathParams) => {
 }
 
 const getTypeAnnotation = (i) => {
+  // url参数取name，body参数取data,query参数取params
   let arg = t.identifier(i.name);
   // 缺少ref类型转化
   arg.typeAnnotation = t.typeAnnotation(
