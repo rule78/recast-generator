@@ -1,4 +1,10 @@
-import { PathsType, DefinitionsType } from '../types/base';
+import { 
+  PathsType,
+  DefinitionsType,
+  SchemaType,
+  ObjectSchema,
+  ArraySchema,
+} from '../types/base';
 
 // 首字母大写
 const upperFirstKey = (name: string): string => {
@@ -87,4 +93,13 @@ export const formatRefName = (ref: string) => {
   //ref '#/definitions/Category'
   const nameSplit = ref.split('/');
   return nameSplit[2];
+}
+
+// 获取schema引用的类型
+export const formatSchema = (schema: SchemaType) => {
+  if ((<ArraySchema>schema).type === 'array') {
+    const params = formatRefName((<ArraySchema>schema).items.$ref);
+    return `Array<${params}>`;
+  }
+  return formatRefName((<ObjectSchema>schema).$ref);
 }

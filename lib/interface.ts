@@ -3,10 +3,11 @@ import {
   visit as v,
   builders as t,
 } from "ast-types";
-import { formatRefName } from '../../utils/format';
-import { upperFirstKey } from '../../utils';
-import { DefinitionsInstType } from '../../types/base';
+import { formatRefName } from './utils/format';
+import { upperFirstKey } from './utils';
+import { DefinitionsInstType } from './types/base';
 
+// Aliases: Statement, Declaration
 const getTsEnumDeclaration = (i: any) => {
   // numericLiteral
   const getInitializer = (value: string) => {
@@ -21,9 +22,12 @@ const getTsEnumDeclaration = (i: any) => {
   )
 }
 
+// Aliases: TSType
 const getReferenceTSType = (name: string) => {
   return t.tsTypeReference(t.identifier(name))
 }
+
+// Aliases: TSType
 const getTSType = (data: DefinitionsInstType, propKey: string) => {
   const { name, properties } = data;
   const item = properties[propKey]
@@ -51,6 +55,7 @@ const getTSType = (data: DefinitionsInstType, propKey: string) => {
   return getReferenceTSType(formatRefName(item.$ref));
 }
 
+//Aliases: Statement, Declaration
 const getInterfaceDeclaration = (i: DefinitionsInstType) => {
   const props = i.properties;
   const InterfaceBody = Object.keys(props).map(key => {

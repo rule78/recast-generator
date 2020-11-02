@@ -1,11 +1,11 @@
-interface ResInst<T> {
+export interface ResType<T> {
   data: T;
   status: 'success' | 'falied';
 }
 
-type MethodsType = 'get' | 'put' | 'delete' | 'post';
+export type MethodsType = 'get' | 'put' | 'delete' | 'post';
 
-interface ApiInstType {
+export interface ApiInstType {
   tags: Array<any>;
   summary: string;
   responses: any;
@@ -37,3 +37,12 @@ export interface SwaggerDocType {
   paths: PathsType;
   definitions: DefinitionsType;
 }
+
+export interface ArraySchema {
+  items: { $ref: string },
+  type: string
+}
+
+export interface ObjectSchema { $ref: string }
+
+export type SchemaType = ArraySchema | ObjectSchema

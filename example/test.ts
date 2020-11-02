@@ -1,5 +1,5 @@
-import { changeFile } from '../utils';
-import generator from '../src/recast/services';
+import { changeFile } from '../lib/utils';
+import generator from '../lib/services';
 
 const fs = require('fs');
 const path = require('path');

@@ -39,6 +39,7 @@ const getExportFuncName = (api: string) => {
   return pathSplit.join('');
 }
 
+// 缺少formData类型参数
 const formatPaths = (paths) => {
   const pathList = [];
   for(let key in paths) {

@@ -2,9 +2,9 @@
   "name": "babel-study",
   "version": "1.0.0",
   "description": "how to change your config docs with recast",
-  "main": "cli.ts",
+  "main": "cli.js",
+  "types": "cli.d.ts",
   "scripts": {
-    "test": "npm run test",
     "build": "npm run clean && tsc",
     "postpack": "npm run clean",
     "prepack": "npm run build",
@@ -12,10 +12,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "n"
+    "url": "https://github.com/rule78/recast-generator"
   },
   "keywords": [
-    "n"
+    "ast",
+    "recast",
+    "swagger"
   ],
   "lint-staged": {
     "*.ts": [
@@ -23,8 +25,8 @@
       "prettier -c"
     ]
   },
-  "author": "杨力",
-  "license": "ISC",
+  "author": "yangli01",
+  "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.10.2",
     "@babel/generator": "^7.11.4",

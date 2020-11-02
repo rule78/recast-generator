@@ -1,6 +1,6 @@
-import generator from '../src/recast/interface';
-import { changeFile,  } from '../utils';
-import { getExtraDefinitions } from '../utils/format';
+import generator from '../lib/interface';
+import { changeFile,  } from '../lib/utils';
+import { getExtraDefinitions } from '../lib/utils/format';
 
 const fs = require('fs');
 const path = require('path');

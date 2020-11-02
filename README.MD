@@ -7,33 +7,57 @@
 ```
 $ yarn
 
-$ cd example
-
-$ babel-node test
+$ node cli
 
 ```
 
 ### Logs
 ```
-//成功写入！
+//成功写入 service.ts！
+import ResType from "@/types";
 import request from "@/utils/request";
 
-//更改预售商品状态接口
-export function* editAdvanceSellProduct(id, params) {
-  const data = yield request.put(`/mgmt/advanceSellProduct/status/${id}`, {
-    params: params
+//Place an order for a pet
+export function* placeOrder(data: Order): ResType {
+  const res = yield request.post("/store/order", {
+    data: data
   });
 
-  return data;
+  return res;
 }
 
-//添加标品接口
-export function* addStandProduct(params) {
-  const data = yield request.post("/mgmt/standProduct/", {
-    params: params
-  });
+//Find purchase order by ID
+export function* getOrderById(orderId: number): ResType {
+  const res = yield request.get(`/store/order/${orderId}`);
+  return res;
+}
 
-  return data;
+//Delete purchase order by ID
+export function* deleteOrder(orderId: number): ResType {
+  const res = yield request.delete(`/store/order/${orderId}`);
+  return res;
+}
+
+//Returns pet inventories by status
+export function* getInventory(): ResType {
+  const res = yield request.get("/store/inventory");
+  return res;
+}
+
+// 成功写入interface
+enum PetStatus {
+  available = "available",
+  pending = "pending",
+  sold = "sold"
+}
+
+export interface Pet {
+  id?: number;
+  category?: Category;
+  name: string;
+  photoUrls: Array<string>;
+  tags?: Array<Tag>;
+  status?: PetStatus;
 }
 
 ```

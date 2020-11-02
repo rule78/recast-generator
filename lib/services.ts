@@ -1,18 +1,36 @@
 import { parse, prettyPrint } from "recast";
 import {
   visit as v,
-  namedTypes as n,
   builders as t,
 } from "ast-types";
-import { formatPaths } from '../../utils';
-import { DefinitionsInstType } from '../../types/base';
+import { formatPaths } from './utils';
+import { formatSchema } from './utils/format';
+import { 
+  DefinitionsInstType,
+} from './types/base';
 
-// Important构建器：生成request导入节点
-const getImportDeclaration = () => {
+// Important构建器：生成默认导入节点
+const getImportDefaultDeclaration = (name: string, dir: string) => {
   return t.importDeclaration(
-    [t.importDefaultSpecifier(t.identifier('request'))],
-    t.literal('@/utils/request')
+    [t.importDefaultSpecifier(t.identifier(name))],
+    t.literal(dir)
   );
+}
+// Important构建器：生成析构导入节点
+const getImportDeclaration  = (name: string, dir: string) => {
+  return t.importDeclaration(
+    [t.importSpecifier(t.identifier(name), t.identifier(name))],
+    t.literal(dir)
+  );
+}
+
+// ParameterInstantiation：生成类型参数
+const getParameterInstantiation = () => {
+  return t.tsTypeParameterInstantiation( //泛型
+    [t.tsTypeReference(
+      t.identifier('T'),
+    )]
+  )
 }
 
 // Object构建器：生成axios请求参数节点
@@ -35,7 +53,7 @@ const getTemplateLiteral = (api, pathParams) => {
   return t.templateLiteral(quasis, expressions);
 }
 
-const getTypeAnnotation = (i) => {
+const getTypeAnnotation = (i: { name: string; type: string; }) => {
   // url参数取name，body参数取data,query参数取params
   let arg = t.identifier(i.name);
   // 缺少ref类型转化
@@ -60,7 +78,7 @@ const getFunctionDeclaration = (config) => {
   const funcParams = [] // 声明函数传参
   const methodProps = [] // method参数数组
   let apiNode = null;
-  // 参数顺序 path、query、body
+  // 参数顺序 path、query、body、formData
   if (pathParams.length > 0) {
     pathParams.map(i => {
       funcParams.push(getTypeAnnotation(i));
@@ -71,12 +89,19 @@ const getFunctionDeclaration = (config) => {
   }
   // url参数
   if (queryParams.length > 0) {
-    funcParams.push(t.identifier('params'))
+    funcParams.push(
+      t.identifier('params')
+    )
     methodProps.push('params')
   }
   // 请求主体被发送的数据
   if (bodyParams.length > 0) {
-    funcParams.push(t.identifier('data'))
+    funcParams.push(
+      getTypeAnnotation({
+        name: 'data',
+        type: formatSchema(bodyParams[0].schema)
+      })
+    )
     methodProps.push('data')
   }
   let funcParamsNode = [apiNode];
@@ -87,7 +112,7 @@ const getFunctionDeclaration = (config) => {
       )
     )
   }
-  return t.functionDeclaration(
+  let declaration = t.functionDeclaration(
     t.identifier(exportName),
     funcParams, // func参数
     t.blockStatement(
@@ -110,9 +135,15 @@ const getFunctionDeclaration = (config) => {
           t.identifier('res')
         )]
     ),
-    true,
-    false,
+    true,  // generator
   )
+  declaration.returnType = t.tsTypeAnnotation(
+    t.tsTypeReference(
+      t.identifier('ResType'),
+      getParameterInstantiation()
+    )
+  )
+  return declaration;
 }
 
 
@@ -122,30 +153,31 @@ const getFunctionDeclaration = (config) => {
  * @param {Object} paths swagger docs paths
  * @return {String} 返回新代码
  */
-const generator = (source: string, paths: any) => {
+const generator = (source: string, paths: any): string => {
   const ast = parse(source);
   v(ast, {
     visitProgram(path) {
       // request import
       const imporNode = path.node.body.find(i => i.type === 'ImportDeclaration')
       if (!imporNode) {
-        path.get("body").unshift(getImportDeclaration());
+        path.get("body").unshift(getImportDefaultDeclaration('request', '@/utils/request'));
+        path.get("body").unshift(getImportDeclaration('ResType', '@/types'));
       }
       formatPaths(paths).forEach((i, index) => {
-        const sameExportNode = false;
-        path.node.body.find(e => {
+        const sameExportNode = path.node.body.find((e: any) => {
           if (e.type === 'ExportNamedDeclaration' && e.declaration.id) {
             return e.declaration.id.name === i.name;
           }
+          return false;
         })
         if (!sameExportNode) { // 不存在该方法声明时
           path.get("body").push(
             t.exportNamedDeclaration(
               getFunctionDeclaration(i)
             ))
-          // 添加注释
-          // const funcNodeList = path.node.body.filter(i => i.declaration);
-          // funcNodeList[index].comments = [t.commentLine(i.summary)];
+          // 通过方法index映射注释
+          const funcNodeList = path.node.body.filter((i: any) => i.declaration);
+          funcNodeList[index].comments = [t.commentLine(i.summary)];
         }
         return;
       })
