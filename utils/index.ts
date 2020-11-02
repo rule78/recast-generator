@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const changeFile = (dir, code, cd) => {
+const changeFile = (dir: string, code: string, cd:()=>void) => {
   fs.access(dir, (err) => {
     if (!err) {
       fs.writeFile(dir, code, function (err) {
@@ -19,7 +19,7 @@ const changeFile = (dir, code, cd) => {
   });
 }
 
-const upperFirstKey = (name) => {
+const upperFirstKey = (name: string) => {
   return name.charAt(0).toUpperCase() + name.slice(1);
 }
 // 映射method对应action
@@ -29,8 +29,9 @@ const methodMap = {
   'delete': 'delete',
   'put': 'edit'
 }
+
 // 自定义api导出方法名称
-const getExportFuncName = (api) => {
+const getExportFuncName = (api: string) => {
   const pathReg = new RegExp('^\{+.*\}$');
   const pathSplit = api.split('/')
     .filter(i=>!!i && !pathReg.test(i))
@@ -43,12 +44,12 @@ const formatPaths = (paths) => {
   for(let key in paths) {
     const control = paths[key];
     for(let methodKey in control) {
-      const parameters = control[methodKey].parameters;
+      const { parameters, operationId } = control[methodKey];
       const target = {
         api: key,
         method: methodKey,
         summary: control[methodKey].summary,
-        name: `${methodMap[methodKey]}${getExportFuncName(key)}`,
+        name: operationId || `${methodMap[methodKey]}${getExportFuncName(key)}`,
         pathParams: parameters.filter((item) => item.in === 'path'),
         bodyParams: parameters.filter((item) => item.in === 'body'),
         queryParams: parameters.filter((item) => item.in === 'query'),

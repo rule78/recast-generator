@@ -5,6 +5,7 @@ import {
   builders as t,
 } from "ast-types";
 import { formatPaths } from '../../utils';
+import { DefinitionsInstType } from '../../types/base';
 
 // Important构建器：生成request导入节点
 const getImportDeclaration = () => {
@@ -121,11 +122,8 @@ const getFunctionDeclaration = (config) => {
  * @param {Object} paths swagger docs paths
  * @return {String} 返回新代码
  */
-const generator = (source, paths) => {
-  const ast = parse(source, {
-    sourceType: "module",
-    plugins: ["flowComments", "typescript"]
-  });
+const generator = (source: string, paths: any) => {
+  const ast = parse(source);
   v(ast, {
     visitProgram(path) {
       // request import
@@ -134,7 +132,8 @@ const generator = (source, paths) => {
         path.get("body").unshift(getImportDeclaration());
       }
       formatPaths(paths).forEach((i, index) => {
-        const sameExportNode = path.node.body.find(e => {
+        const sameExportNode = false;
+        path.node.body.find(e => {
           if (e.type === 'ExportNamedDeclaration' && e.declaration.id) {
             return e.declaration.id.name === i.name;
           }
@@ -145,8 +144,8 @@ const generator = (source, paths) => {
               getFunctionDeclaration(i)
             ))
           // 添加注释
-          const funcNodeList = path.node.body.filter(i => i.declaration);
-          funcNodeList[index].comments = [t.commentLine(i.summary)];
+          // const funcNodeList = path.node.body.filter(i => i.declaration);
+          // funcNodeList[index].comments = [t.commentLine(i.summary)];
         }
         return;
       })

@@ -1,30 +1,30 @@
 import { parse, prettyPrint } from "recast";
 import {
   visit as v,
-  namedTypes as n,
   builders as t,
 } from "ast-types";
 import { formatRefName } from '../../utils/format';
 import { upperFirstKey } from '../../utils';
+import { DefinitionsInstType } from '../../types/base';
 
-const getTsEnumDeclaration = (i) => {
+const getTsEnumDeclaration = (i: any) => {
   // numericLiteral
-  const getInitializer = (value) => {
+  const getInitializer = (value: string) => {
     return i.enumType === 'string' ? t.stringLiteral(value): null;
   }
   return t.tsEnumDeclaration(
     t.identifier(i.name),
-    i.values.map((m) => t.tsEnumMember(
+    i.values.map((m: any) => t.tsEnumMember(
       t.identifier(m),
       getInitializer(m),
     )),
   )
 }
 
-const getReferenceTSType = (name) => {
+const getReferenceTSType = (name: string) => {
   return t.tsTypeReference(t.identifier(name))
 }
-const getTSType = (data, propKey) => {
+const getTSType = (data: DefinitionsInstType, propKey: string) => {
   const { name, properties } = data;
   const item = properties[propKey]
   const baseType = ['boolean', 'string', 'number', 'integer']
@@ -48,13 +48,10 @@ const getTSType = (data, propKey) => {
       )
     )
   }
-  if (item.$ref) {
-    return getReferenceTSType(formatRefName(item.$ref));
-  }
-  console.log('存在异常',item);
+  return getReferenceTSType(formatRefName(item.$ref));
 }
 
-const getInterfaceDeclaration = (i) => {
+const getInterfaceDeclaration = (i: DefinitionsInstType) => {
   const props = i.properties;
   const InterfaceBody = Object.keys(props).map(key => {
     return t.tsPropertySignature(
@@ -66,18 +63,14 @@ const getInterfaceDeclaration = (i) => {
   return t.tsInterfaceDeclaration(
     t.identifier(i.name),
     t.tsInterfaceBody(InterfaceBody),
-    true,
   )
 }
 
-const generator = (source, def) => {
-  const ast = parse(source, {
-    sourceType: "module",
-    plugins: ["flowComments", "typescript"]
-  });
+const generator = (source: string, defList: any[]) => {
+  const ast = parse(source);
   v(ast, {
     visitProgram(path) {
-      def.map(i => {
+      defList.map((i: DefinitionsInstType) => {
         if (i.type === 'object') {
           path.get("body").push(
             t.exportNamedDeclaration(

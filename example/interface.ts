@@ -7,7 +7,7 @@ const path = require('path');
 const request = require('request');
 // swagger api-docs
 const api = 'https://petstore.swagger.io/v2/swagger.json';
-const dir = path.join("./d.ts");
+const dir = path.join("./data.ts");
 const source = fs.readFileSync(dir, "utf8");
 
 request(api, (err, res) => {
