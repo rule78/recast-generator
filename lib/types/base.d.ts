@@ -3,6 +3,11 @@ export interface ResType<T> {
   status: 'success' | 'falied';
 }
 
+export const enum ResCode {
+  success = 200,
+  faild = 400,
+}
+
 export type MethodsType = 'get' | 'put' | 'delete' | 'post';
 
 export interface ApiInstType {

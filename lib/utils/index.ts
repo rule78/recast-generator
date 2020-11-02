@@ -45,15 +45,16 @@ const formatPaths = (paths) => {
   for(let key in paths) {
     const control = paths[key];
     for(let methodKey in control) {
-      const { parameters, operationId } = control[methodKey];
+      const { parameters, operationId, summary, responses } = control[methodKey];
       const target = {
         api: key,
         method: methodKey,
-        summary: control[methodKey].summary,
+        summary,
         name: operationId || `${methodMap[methodKey]}${getExportFuncName(key)}`,
         pathParams: parameters.filter((item) => item.in === 'path'),
         bodyParams: parameters.filter((item) => item.in === 'body'),
         queryParams: parameters.filter((item) => item.in === 'query'),
+        responses,
       };
       pathList.push(target);
     }

@@ -4,9 +4,9 @@ import {
   builders as t,
 } from "ast-types";
 import { formatPaths } from './utils';
-import { formatSchema } from './utils/format';
-import { 
-  DefinitionsInstType,
+import { formatSchema, formatRefName } from './utils/format';
+import {
+  ResCode,
 } from './types/base';
 
 // Important构建器：生成默认导入节点
@@ -24,11 +24,20 @@ const getImportDeclaration  = (name: string, dir: string) => {
   );
 }
 
-// ParameterInstantiation：生成类型参数
-const getParameterInstantiation = () => {
+// ParameterInstantiation：泛型参数
+const getParameterInstantiation = (res: any) => {
+  if (res[ResCode.success]?.schema?.$ref) {
+    return t.tsTypeParameterInstantiation( //泛型
+      [t.tsTypeReference(
+        t.identifier(
+          formatRefName(res[ResCode.success].schema.$ref)
+        ),
+      )]
+    )
+  }
   return t.tsTypeParameterInstantiation( //泛型
     [t.tsTypeReference(
-      t.identifier('T'),
+      t.identifier('{}'),
     )]
   )
 }
@@ -74,6 +83,7 @@ const getFunctionDeclaration = (config) => {
     queryParams, // query请求参数
     bodyParams, // body请求参数
     pathParams, // path请求参数
+    responses, // 接口返回对象
   } = config;
   const funcParams = [] // 声明函数传参
   const methodProps = [] // method参数数组
@@ -140,7 +150,7 @@ const getFunctionDeclaration = (config) => {
   declaration.returnType = t.tsTypeAnnotation(
     t.tsTypeReference(
       t.identifier('ResType'),
-      getParameterInstantiation()
+      getParameterInstantiation(responses)
     )
   )
   return declaration;
