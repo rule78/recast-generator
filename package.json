@@ -2,8 +2,8 @@
   "name": "babel-study",
   "version": "1.0.0",
   "description": "how to change your config docs with recast",
-  "main": "cli.js",
-  "types": "cli.d.ts",
+  "main": "main.js",
+  "types": "main.d.ts",
   "scripts": {
     "build": "npm run clean && tsc",
     "postpack": "npm run clean",

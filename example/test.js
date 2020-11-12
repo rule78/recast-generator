@@ -36,11 +36,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-var format_1 = require("./lib/utils/format");
-var utils_1 = require("./lib/utils");
-var format_2 = require("./lib/utils/format");
-var services_1 = require("./lib/services");
-var interface_1 = require("./lib/interface");
+var format_1 = require("../lib/utils/format");
+var utils_1 = require("../lib/utils");
+var format_2 = require("../lib/utils/format");
+var Service_1 = require("../lib/Service");
+var Interface_1 = require("../lib/Interface");
 var fs = require('fs');
 var path = require('path');
 var request = require('request');
@@ -49,7 +49,7 @@ var qoa = require('qoa');
 var api = 'https://petstore.swagger.io/v2/swagger.json';
 console.log("try to request " + api);
 var cb = function (err, response) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, tags, paths, definitions, selectList, selectControl, cRes, p, serviceDir_1, serviceSource, interDir_1, interSource;
+    var _a, tags, paths, definitions, selectList, selectControl, cRes, p, serviceDir_1, serviceSource, buildServiceInst, interDir_1, interSource, buildInterfaceInst;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -68,14 +68,16 @@ var cb = function (err, response) { return __awaiter(void 0, void 0, void 0, fun
             case 1:
                 cRes = _b.sent();
                 p = format_1.filterPaths(cRes.control, paths);
-                serviceDir_1 = path.join("./example/service.ts");
+                serviceDir_1 = path.join("./service.ts");
                 serviceSource = fs.readFileSync(serviceDir_1, "utf8");
-                utils_1.changeFile(serviceDir_1, services_1["default"](serviceSource, p), function () {
+                buildServiceInst = new Service_1["default"]();
+                utils_1.changeFile(serviceDir_1, buildServiceInst.generator(serviceSource, p), function () {
                     console.log("\u6210\u529F\u5199\u5165\u6587\u4EF6" + serviceDir_1);
                 });
-                interDir_1 = path.join("./example/data.ts");
+                interDir_1 = path.join("./data.ts");
                 interSource = fs.readFileSync(interDir_1, "utf8");
-                utils_1.changeFile(interDir_1, interface_1["default"](interSource, format_2.getExtraDefinitions(definitions)), function () {
+                buildInterfaceInst = new Interface_1["default"]();
+                utils_1.changeFile(interDir_1, buildInterfaceInst.generator(interSource, format_2.getExtraDefinitions(definitions)), function () {
                     console.log("\u6210\u529F\u5199\u5165\u6587\u4EF6" + interDir_1);
                 });
                 _b.label = 2;
@@ -84,7 +86,3 @@ var cb = function (err, response) { return __awaiter(void 0, void 0, void 0, fun
     });
 }); };
 request(api, cb);
-exports["default"] = {
-    buildService: services_1["default"],
-    buildInterface: interface_1["default"]
-};

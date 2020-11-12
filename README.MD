@@ -7,7 +7,9 @@
 ```
 $ yarn
 
-$ node cli
+$ cd example
+
+$ node test
 
 ```
 
@@ -17,30 +19,27 @@ $ node cli
 import { ResType } from "@/types";
 import request from "@/utils/request";
 
-//Place an order for a pet
-export function* placeOrder(data: Order): ResType<T> {
-  const res = yield request.post("/store/order", {
+//Creates list of users with given input array
+export function* createUsersWithArrayInput(data: Array<User>): ResType<{}> {
+  const res = yield request.post("/user/createWithArray", {
     data: data
   });
 
   return res;
 }
 
-//Find purchase order by ID
-export function* getOrderById(orderId: number): ResType<T> {
-  const res = yield request.get(`/store/order/${orderId}`);
+//Creates list of users with given input array
+export function* createUsersWithListInput(data: Array<User>): ResType<{}> {
+  const res = yield request.post("/user/createWithList", {
+    data: data
+  });
+
   return res;
 }
 
-//Delete purchase order by ID
-export function* deleteOrder(orderId: number): ResType<T> {
-  const res = yield request.delete(`/store/order/${orderId}`);
-  return res;
-}
-
-//Returns pet inventories by status
-export function* getInventory(): ResType<T> {
-  const res = yield request.get("/store/inventory");
+//Get user by user name
+export function* getUserByName(username: string): ResType<User> {
+  const res = yield request.get(`/user/${username}`);
   return res;
 }
 
