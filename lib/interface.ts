@@ -6,7 +6,7 @@ import {
 import Base from './Base';
 import { DefinitionsInstType } from './types/base';
 
-export default class BuildService extends Base {
+export default class BuildInterface extends Base {
   constructor() {
     super();
   }

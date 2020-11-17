@@ -8,19 +8,33 @@ import { formatPaths } from './utils';
 import { formatSchema, formatRefName } from './utils/format';
 import {
   ResCode,
+  PathsType,
+  Paramster,
 } from './types/base';
 
+interface VisitPath {
+  node: any;
+  scope: any;
+  get: any;
+}
 export default class BuildService extends Base {
-  constructor() {
+  controllerName: any;
+  importTypePath?: any;
+  
+  constructor({controllerName, importTypePath}) {
     super();
+    this.controllerName = controllerName || 'data';
+    this.importTypePath = importTypePath || './type';
   }
   // ParameterInstantiation：泛型参数
   getParameterInstantiation(res: any) {
     if (res[ResCode.success]?.schema?.$ref) {
+      const typeName = formatRefName(res[ResCode.success].schema.$ref);
+      this.importType.push(typeName);
       return t.tsTypeParameterInstantiation( //泛型
         [t.tsTypeReference(
           t.identifier(
-            formatRefName(res[ResCode.success].schema.$ref)
+            typeName
           ),
         )]
       )
@@ -123,17 +137,22 @@ export default class BuildService extends Base {
     return declaration;
   }
 
-  addImportNode(path) {
+  addImportNode(path: VisitPath) {
     // request import
     const imporNode = path.node.body.find(i => i.type === 'ImportDeclaration')
     if (!imporNode) {
       path.get("body").unshift(
         super.getImportDefaultDeclaration('request', '@/utils/request')
       );
-      path.get("body").unshift(super.getImportDeclaration('ResType', '@/types'));
+      // ResType类型引入
+      path.get("body").unshift(super.getImportDeclaration(
+        ['ResType'], '../lib/types/base.d'));
     }
+    // 类型引入
+    path.get("body").unshift(super.getImportDeclaration(
+      Array.from(new Set(this.importType)), this.importTypePath));
   }
-  addExportNode(paths, path) {
+  addExportNode(paths: PathsType, path: VisitPath) {
     formatPaths(paths).forEach((i, index) => {
       const sameExportNode = path.node.body.find((e: any) => {
         if (e.type === 'ExportNamedDeclaration' && e.declaration.id) {
@@ -153,17 +172,39 @@ export default class BuildService extends Base {
       return;
     })
   }
-  addParamsTypeAnnotation() {
-    // console.log(this.serviceParams, 'serviceParamsDeclaration');
+  addParamsTypeAnnotation(path: VisitPath) {
+    const _this = this;
+    _this.serviceParams.forEach((i: { params: Paramster[]; name: string; }) => {
+      const properties: any = {};
+      const requiredList: string[] = [];
+      if (i.params && i.params.length > 0) {
+        i.params.map((p: Paramster) => {
+          properties[p.name] = {
+            type: p.type
+          };
+          if (p.required) {
+            requiredList.push(p.name);
+          }
+        })
+        path.get("body").unshift(
+          _this.getInterfaceDeclaration({
+            type: 'object',
+            name: i.name,
+            properties,
+            required: requiredList,
+          })
+        )
+      }
+    })
   }
   generator(source: string, paths: any): string {
     const ast = parse(source);
     const _this = this;
     v(ast, {
-      visitProgram(path) {
-        _this.addImportNode(path);
+      visitProgram(path: VisitPath) {
         _this.addExportNode(paths, path);
-        _this.addParamsTypeAnnotation()
+        _this.addParamsTypeAnnotation(path);
+        _this.addImportNode(path);
         this.traverse(path);
       }
     })

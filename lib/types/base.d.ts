@@ -1,6 +1,6 @@
-export interface ResType<T> {
-  data: T;
-  status: 'success' | 'falied';
+export interface ResType<T> extends Generator {
+  data?: T;
+  status?: 'success' | 'falied';
 }
 
 export const enum ResCode {
@@ -50,4 +50,12 @@ export interface ArraySchema {
 
 export interface ObjectSchema { $ref: string }
 
-export type SchemaType = ArraySchema | ObjectSchema
+export type SchemaType = ArraySchema | ObjectSchema;
+
+export interface Paramster {
+  description: string;
+  in: 'query' | 'path' | 'body' | 'formData';
+  name: string;
+  required: boolean;
+  type: string;
+}

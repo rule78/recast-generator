@@ -7,9 +7,7 @@
 ```
 $ yarn
 
-$ cd example
-
-$ node test
+$ npm run dev
 
 ```
 

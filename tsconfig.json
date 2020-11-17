@@ -4,19 +4,20 @@
     "lib": ["es2017"],
     "module": "commonjs",
     "declaration": true,
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
+
     "moduleResolution": "node",
     "esModuleInterop": true,
     "importHelpers": true,
     "stripInternal": true,
     "listFiles": true,
     "rootDir": ".",
+
+    "strict": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true
+    
   },
-  "exclude": [
-    "node_modules",
-    "test",
-  ]
+  "files": ["./example/test.ts"],
+  "exclude": ["node_modules"]
 }

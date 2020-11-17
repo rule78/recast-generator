@@ -7,7 +7,7 @@ import { DefinitionsInstType } from './types/base';
 
 export default class Base{
   importType: Array<string>;
-  serviceParams: Array<any>;
+  serviceParams: Array<{name: string, params: any}>;
 
   constructor() {
     this.importType = [];
@@ -21,9 +21,12 @@ export default class Base{
     );
   }
   // Important构建器：生成析构导入节点
-  public getImportDeclaration (name: string, dir: string) {
+  public getImportDeclaration (list: string[], dir: string) {
+    const importSpecifier = list.map(name=> {
+      return t.importSpecifier(t.identifier(name), t.identifier(name))
+    })
     return t.importDeclaration(
-      [t.importSpecifier(t.identifier(name), t.identifier(name))],
+      importSpecifier,
       t.literal(dir)
     );
   }
@@ -59,7 +62,7 @@ export default class Base{
     return arg;
   }
   // Aliases: Statement, Declaration
-  public getTsEnumDeclaration (i: any) {
+  public getTsEnumDeclaration (i: { enumType: string; name: string; values: any[]; }) {
     // numericLiteral
     const getInitializer = (value: string) => {
       return i.enumType === 'string' ? t.stringLiteral(value): null;
