@@ -1,7 +1,7 @@
 <h1 align="center">recast-generator</h1>
 
 ### 实现功能
-- 根据yapi、swagger接口生成前端services、interface声明代码
+- 根据swagger接口文档生成前端services、interface等ts声明代码
 
 ### Use bash
 ```
