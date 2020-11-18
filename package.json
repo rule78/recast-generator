@@ -5,7 +5,7 @@
   "main": "main.js",
   "types": "main.d.ts",
   "scripts": {
-    "dev": "ts-node ./example/test",
+    "dev": "cd example && ts-node test",
     "build": "npm run clean && tsc",
     "postpack": "npm run clean",
     "prepack": "npm run build",
